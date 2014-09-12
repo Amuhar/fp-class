@@ -65,19 +65,19 @@ avg3 a b c = (a+b+c)/3
    обращая внимание на обозначения и приоритеты операций, стандартные функции,
    расстановку скобок:
 
-    2 + 3 										5 
-    mod 10 4 									2
-    10 `mod` 4 									2
-    True && 5 < 10 								True
-    5 < 7 || 10 > 3 							True
-    sqrt (-2) 									NaN
-    sqrt (sqrt 16) 								2.0
-    let x = 4 in (sin x)^2 + (cos x)^2			1.0
-    x 											Not in scope : 'x'
-    7^(-1) 										Negative exponent
-    error "AAAA!!!!"  							***Exception: "AAAA!!!!"
-    12345^54321 								Большое число
-    2 < 3 || 9999954321^99912345 > 12345^54321 	True
+    2 + 3 5 
+    mod 10 4 2
+    10 `mod` 4 2
+    True && 5 < 10 True
+    5 < 7 || 10 > 3 True
+    sqrt (-2) NaN
+    sqrt (sqrt 16) 2.0
+    let x = 4 in (sin x)^2 + (cos x)^2 1.0
+    x Not in scope : 'x'
+    7^(-1) Negative exponent
+    error "AAAA!!!!" ***Exception: "AAAA!!!!"
+    12345^54321 Большое число
+    2 < 3 || 9999954321^99912345 > 12345^54321 True
 
 -}
 
@@ -95,14 +95,14 @@ avg3 a b c = (a+b+c)/3
   классу типов Num (имеет экземпляр класса типов Num, является числовым типом).
 
   Определите и сохраните в этом файле типы следующих выражений:
-   5 						5 :: Num a => a
-   5.0 						5.0 :: Fractional a => a
-   sqrt 4 					sqrt 4 :: Floating a => a
-   sqrt 4.0 				sqrt 4.0 :: Floating a => a
-   2+3 						2+3 :: Num a => a
-   5 < 7 					5 < 7 :: Bool
-   if 2 > 3 then 7 else 5	if 2 > 3 then 7 else 5 :: Num a => a
-   5 > 6 && False			5 > 6 && False :: Bool
+   5 5 :: Num a => a
+   5.0 5.0 :: Fractional a => a
+   sqrt 4 sqrt 4 :: Floating a => a
+   sqrt 4.0 sqrt 4.0 :: Floating a => a
+   2+3 2+3 :: Num a => a
+   5 < 7 5 < 7 :: Bool
+   if 2 > 3 then 7 else 5 if 2 > 3 then 7 else 5 :: Num a => a
+   5 > 6 && False 5 > 6 && False :: Bool
 
    Команда ":set +t" включает режим, при котором печатается тип каждого вычисляемого выражения.
    Команда ":set +s" включает режим, при котором печатается время вычисления каждого выражения.
@@ -124,7 +124,7 @@ triple a = 3*a
 -- в) Определение наибольшего из трёх заданных целых чисел (можно воспользоваться стандартной
 --    двухаргументной функцией max).
 max3 :: Ord a => a -> a -> a -> a
-max3 a b c= if max a b > c then max a b else c
+max3 a b c= max c (max a b)
 
 {-
   Проверка:
@@ -170,8 +170,14 @@ gcd' a b = gcd' b (mod a b)
 -- з) Функция, возвращающая название дня недели по его номеру (от 1 до 7),
 --    если номер неправильный, генерируется исключение (функция error).
 dayOfWeek :: Int -> String
-dayOfWeek x = 
-		if	x >= 1 && x <= 7 then ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"] !! (x+1) else error "input number from range 1..7"
+dayOfWeek 1 = "Monday"
+dayOfWeek 2 = "Tuesday"
+dayOfWeek 3 = "Wednesday"
+dayOfWeek 4 = "Thursday"
+dayOfWeek 5 = "Friday"
+dayOfWeek 6 = "Saturday"
+dayOfWeek 7 = "Sunday"
+dayOfWeek _ =  error "input number from range 1..7"
 
 -- Далее типовые аннотации, если их нет, следует писать самостоятельно.
 
@@ -239,12 +245,10 @@ sum_ab a b
       Вычислить её n-й элемент.
 -}
 eval_a_n :: Integral a => a -> a 
-eval_a_n n 
-	| n == 1 = 1
-	| n == 2 = 2
-	| n == 3 = 3
-	| n > 3 = eval_a_n (n-1) + eval_a_n(n-2) - 2*eval_a_n(n-3)
-	| otherwise = error "n should be >= 1" 
+eval_a_n 1 = 1
+eval_a_n 2 = 2
+eval_a_n 3 = 3
+eval_a_n n = if ( n > 3 ) then eval_a_n (n-1) + eval_a_n(n-2) - 2*eval_a_n(n-3) else error "n should be >= 1" 
 -- в) Вычислить, пользуясь рекурсией, n-ю степень числа a (n - целое):
 pow :: Integral a => a -> a -> a
 pow a 1 = a
@@ -301,10 +305,8 @@ isPrime n = null [x|x <- [2..sqrt' n], (round n) `mod`  x ==  0]
   а 1200 и 2000 — являются).
 -}
 
+
 nDays :: Integral a => a -> a
 nDays year = if isLeap year then 366 else 365
   where
-    isLeap year 
-		| mod year 100 == 0 && mod year 400 /= 0 = False
-		| mod year 4 == 0 = True
-		| otherwise = False
+    isLeap year = not ((mod year 100 == 0 ) && (mod year 400 /= 0)) && (mod year 4 == 0)
