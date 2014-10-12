@@ -10,7 +10,7 @@ module Logic3 where
 data Logic3 = T -- Истина
             | U -- Неизвестно
             | F -- Ложь
-            deriving(Eq)
+            deriving(Show,Eq,Ord)
 
 {-
   2. Реализовать логическую операцию not3, определяемую таблицей:
@@ -31,7 +31,9 @@ data Logic3 = T -- Истина
 -}
 
 not3 :: Logic3 -> Logic3
-not3 = undefined
+not3  T = U
+not3  U = F
+not3  _ = T
 
 {-
   3. Реализовать логические операции \/ (дизъюнкция) и /\ (конъюнкция), определяемые следующими
@@ -47,20 +49,22 @@ not3 = undefined
 -}
 
 (\/) :: Logic3 -> Logic3 -> Logic3
-a \/ b = undefined
+a \/ b = min a b
+	  
 
 (/\) :: Logic3 -> Logic3 -> Logic3
-a /\ b = undefined
+a /\ b = max a b
 
 -- 4. Реализовать аналоги стандартных функций and, or, any, all для случая трёхзначной логики.
 
 and3, or3 :: [Logic3] -> Logic3
-and3 = undefined
-or3 = undefined
+and3 xs = foldl (\acc x -> (/\) acc x) T xs
+
+or3 xs = foldl (\acc x -> (\/) acc x) F xs
 
 any3, all3 :: (a -> Logic3) -> [a] -> Logic3
-any3 = undefined
-all3 = undefined
+any3 p xs= or3 $ foldl (\acc x -> (p x):acc) [] xs
+all3 p xs= and3 $ foldl (\acc x -> (p x):acc) [] xs
 
 {-
   5. Перебирая все возможные значения логической переменной, доказать тождественную истинность
@@ -68,7 +72,7 @@ all3 = undefined
 -}
 
 excluded_fourth :: Logic3
-excluded_fourth = undefined
+excluded_fourth = and3 $ foldl (\acc x -> (x \/ not3 x \/ not3 (not3 x):acc) ) [] [T,U,F]
 
 -- Должно быть True
 test_excluded_fourth = excluded_fourth == T
