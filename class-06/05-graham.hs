@@ -9,5 +9,29 @@
 -}
 
 import GrahamScan
+import System.Environment
+import Data.List
+import Data.Char
+import System.IO
 
-main = undefined
+
+
+createList:: String -> [Point]
+createList points =  foldl (\acc x -> (Point (read (head $ tail $ words x)::Double) (read (last $ words x)::Double ) ):acc) [] (lines points)
+
+createString:: [Point] -> String
+createString lsPoint = foldl (\acc x -> acc ++ show x ++ "\n" ) "" lsPoint
+
+createFile:: FilePath -> IO()
+createFile fname = do
+  contents <- readFile fname
+  let lsPoint =  createList contents
+  let result = graham_scan lsPoint
+  writeFile "graham.txt" $createString result
+    
+
+
+main = do
+     [fname] <- getArgs
+     createFile fname
+ 
