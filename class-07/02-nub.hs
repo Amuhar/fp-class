@@ -16,13 +16,13 @@ nub_set :: Set.IntSet -> Int
 nub_set = Set.size
 
 nub_list :: [Int] -> Int
-nub_list = undefined
+nub_list ls = length $ foldl (\acc x -> if elem x acc then acc else x:acc ) [] ls
 
-nub_seq :: Seq.Seq a -> Int
-nub_seq = undefined
+nub_seq :: (Eq a) => Seq.Seq a -> Int
+nub_seq seq = Seq.length $ Seq.foldlWithIndex (\acc ind s -> if null $Seq.elemIndicesL s acc then  (Seq.<|) s acc else acc ) Seq.empty seq
 
 nub_arr :: Array Int Int -> Int
-nub_arr = undefined
+nub_arr = nub_list . elems
 
 main = do
   [fname] <- getArgs

@@ -6,5 +6,22 @@
   3) количество чисел в строке;
   4) количество строк в файле.
 -}
+import System.Environment
+import Data.List
+import Data.Char
+import System.IO
+import System.Random
 
-main = undefined
+genRandFile :: [String] -> IO()
+genRandFile args = do 
+    let [fname, from,to, countch,countl ] = args
+    mapM_ (\x -> x) $ replicate (read countl) $ do 
+    g <- newStdGen
+    let numbers = take (read countch) $ randomRs (read from,read to) g ::[Int]
+    appendFile fname  $ foldl (\acc x -> show x ++ " " ++ acc ) "" numbers ++ "\n"
+
+
+
+main = do
+    args <- getArgs
+    genRandFile args
