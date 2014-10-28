@@ -31,19 +31,24 @@ prepositions = do
     content <- readFile "prepositions.txt"
     let prepositionsList =  Data.List.concatMap T.words $T.lines $pack content
     return prepositionsList
-	   
-f4 content = mapM_ (\x -> x content) [f41,f42]
+       
+f4 content = mapM_ (\x -> x content) [f41,f42,f43]
 
---properNounMidSent::String -> IO()
---properNounMidSent content = do
-		
 
---f43::String -> IO()
---f43 content = do
---	pr <- prepositions
---	p <- pronouns
-	
-	
+        
+
+f43::String -> IO()
+f43 content = do
+    pr <- prepositions
+    p <- pronouns
+    putStrLn $ "number of proper nouns "++ (show $ Data.List.length $properNounMidSent ++  Data.List.filter (\x -> not (elem (pack $ (Data.Char.toLower $ T.head x):(unpack $ T.tail x)) p) && not (elem (pack $ (Data.Char.toLower $ T.head x):(unpack $ T.tail x)) pr) &&x /= pack "I" && elem x properNounMidSent && not (elem x [pack "A",pack "An",pack "The"]) ) sentHead)
+    where 
+        allSentences =   Data.List.map T.words $ T.split (\x -> elem x "!.?") $pack content
+        sentWithoutHead =  Data.List.foldl  (\acc x -> if not(Data.List.null x) then Data.List.tail x : acc   else acc ) [] allSentences 
+        sentHead =  Data.List.foldl  (\acc x -> if not(Data.List.null x) then Data.List.head x : acc   else acc ) [] allSentences 
+        properNounMidSent = Data.List.concatMap (Data.List.filter (\x -> (isUpper $ T.head x ) && x /= pack "I" && x /= pack "The" )) sentWithoutHead
+ 
+    
 
 f42::String -> IO()
 f42 content = do
