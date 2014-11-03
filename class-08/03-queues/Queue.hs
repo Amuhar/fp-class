@@ -2,7 +2,7 @@ module Queue (Queue, empty, enqueue, dequeue, isEmpty) where
 
 import AbstractQueue
 
-newtype Queue t = QueueImpl [t]
+newtype Queue t = QueueImpl [t] deriving (Show)
 
 instance AbstractQueue Queue where
   empty = QueueImpl []

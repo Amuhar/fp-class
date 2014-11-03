@@ -1,6 +1,7 @@
 import AbstractQueue
 import qualified Queue as Q
 import qualified FastQueue as FQ
+import qualified SeqQueue as SQ
 
 checkQueue :: (AbstractQueue q, Num a, Eq a) => q a -> Bool
 checkQueue q = lastElem (enqueue q 5) == 5
@@ -11,3 +12,4 @@ checkQueue q = lastElem (enqueue q 5) == 5
 main = print $
          checkQueue (enqueue empty 10 :: Q.Queue Int)
          &&  checkQueue (enqueue empty 10 :: FQ.Queue Int)
+         && checkQueue (enqueue empty 10 :: SQ.Queue Int)
