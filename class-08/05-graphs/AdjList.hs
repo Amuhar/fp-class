@@ -1,4 +1,4 @@
-module AdjList (Graph,mkGraph) where
+module AdjList (Graph,mkGraph,edgeIn, adjacent, nodes, weight, nodesBounds, edges) where
 
 import AbstractGraph as AS
 import Data.List
@@ -6,7 +6,7 @@ import Data.Array.IArray
 import Data.Ix
 
 
-newtype Graph a t  = Graph (Array a [(a,t)]  )  deriving (Show)
+newtype Graph a t  = Graph (Array a [(a,t)]  )  deriving (Show )
 
 
 
@@ -24,7 +24,7 @@ formList digraph range'  edgeList = case digraph of
     False -> foldr (\ v acc ->  (foldr (\vw ac -> intCase vw v ac ) [] edgeList):acc   ) [] r
     where r = range range'
 instance AbstractGraph Graph where
-   mkGraph digraph range' edgeList  = Graph $ formGraph digraph range' edgeList 
+   mkGraph digraph range' edgeList  = Graph $ formGraph digraph range' edgeList
    edgeIn (Graph arr) (b,e) = if (not.null) $arr ! b then  (not.null) $filter (\(x,w) -> x == e) $ arr ! b else False
    adjacent (Graph arr) v = map (\(x,w) -> x) $arr ! v
    nodes (Graph arr) = indices arr
