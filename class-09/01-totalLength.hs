@@ -1,11 +1,13 @@
 import System.Environment
-
+import Data.List
+import Control.Applicative
 {-
   Написать функцию, которая по заданному списку строк возвращает сумму длин всех строк.
 -}
 
+
 totalLength :: [String] -> Int
-totalLength = undefined
+totalLength = (sum.map length) 
 
 {-
   Написать функцию, которая по заданному символу и целому числу n строит список строк,
@@ -13,7 +15,9 @@ totalLength = undefined
 -}
 
 build1 :: Char -> Int -> Maybe [String]
-build1 = undefined
+build1 c n 
+    | n == 0 = Nothing 
+    |otherwise = Just  [replicate x c| x <- [1..n]] 
 
 {-
   Написать функцию, аналогичную по возможностям функции build1, но возвращающую при этом
@@ -25,7 +29,11 @@ build1 = undefined
 -}
 
 build2 :: Char -> Int -> Either String [String]
-build2 = undefined
+build2 c n 
+    | n == 0 = Left "n = 0"
+    | n > 100 = Left "n > 100"
+    | c == 'x' = Left "you can't use symbol x "
+    |otherwise = Right [replicate x c| x <- [1..n]] 
 
 {-
   Параметрами командной строки являются имя файла, символ, целое число.
@@ -40,4 +48,11 @@ build2 = undefined
 -}
 
 main = do
-  undefined
+   args   <-  getArgs
+   let [fname,c,n] = args
+   count <- totalLength <$> getArgs
+   print count
+   countF <- (totalLength.lines) <$> readFile fname
+   print countF
+   print $totalLength  <$> build1 (read c) (read n) 
+   print $totalLength  <$> build2 (read c) (read n)
