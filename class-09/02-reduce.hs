@@ -1,4 +1,7 @@
 import System.Environment
+import Control.Applicative
+import Data.List
+import System.Random
 
 {-
   Напишите функцию reduce, принимающую один целочисленный аргумент a и возвращающую 0,
@@ -7,7 +10,10 @@ import System.Environment
 -}
 
 reduce :: Integral a => a -> a
-reduce = undefined
+reduce a 
+    | a `mod` 3 == 0 = 0
+    | a `mod` 3 /= 0 && odd a = a*a
+    |otherwise = a*a*a
 
 {-
   Напишите функцию, применяющую функцию reduce заданное количество раз к значению в контексте,
@@ -15,7 +21,7 @@ reduce = undefined
 -}
 
 reduceNF :: (Functor f, Integral a) => Int -> f a -> f a
-reduceNF = undefined
+reduceNF n m = last <$> take (n+1) <$> iterate reduce <$> m
 
 {-
   Реализуйте следующие функции-преобразователи произвольным, но, желательно, осмысленным и
@@ -23,17 +29,29 @@ reduceNF = undefined
 -}
 
 toList :: Integral a => [(a, a)]  -> [a]
-toList = undefined
+toList = map (\x -> fst x)
 
+-- возвращает первый уникальных элементов в списке 
 toMaybe :: Integral a => [(a, a)]  -> Maybe a
-toMaybe = undefined
+toMaybe  ls =if null l then Nothing else Just (fst $ head l)
+    where 
+        l = filter ((== 1).snd )$ map (\xs -> (head xs, length xs)) . group . sort $toList ls
 
 toEither :: Integral a => [(a, a)]  -> Either String a
-toEither = undefined
+toEither ls= if null l then Left "not found unique elements in a list" else Right (fst $ head l)
+    where 
+        l = filter ((== 1).snd )$ map (\xs -> (head xs, length xs)) . group . sort $toList ls
 
 -- воспользуйтесь в этой функции случайными числами
+
 toIO :: Integral a => [(a, a)]  -> IO a
-toIO = undefined
+toIO ls = do
+    g <- newStdGen
+    let  (index, g') = randomR (0,length ls -1 ) g::(Int,StdGen)
+    let (f,s) = (!!) ls  index
+    let ls' = if f > s then [s..f] else [f..s]
+    let (index', g) = randomR (0,length ls'-1) g'::(Int,StdGen)
+    return $ (!!) ls' index'
 
 {-
   В параметрах командной строки задано имя текстового файла, в каждой строке
@@ -45,19 +63,57 @@ toIO = undefined
 -}
 
 parseArgs :: [String] -> (FilePath, Int)
-parseArgs = undefined
+parseArgs ls = (head ls, read $last ls)
 
 readData :: FilePath -> IO [(Int, Int)]
-readData = undefined
+readData fname = do
+    content <- readFile fname
+    return $ map (\s -> let [f',s'] = words s in (read f', read s')) $  lines content
 
 main = do
   (fname, n) <- parseArgs `fmap` getArgs
   ps <- readData fname
-  undefined
+  print $ toList ps
+  print $ reduceNF n (toList ps)
+  print $ reduceNF n (toMaybe ps)
   print $ reduceNF n (toEither ps)
   reduceNF n (toIO ps) >>= print
 
 {-
   Подготовьте несколько тестовых файлов, демонстрирующих особенности различных контекстов.
   Скопируйте сюда результаты вызова программы на этих файлах.
+  
+  2_1.txt  n = 3
+
+    2 3
+    3 5
+    4 7
+    8 9
+    9 10
+    2 7
+    
+    [2,3,4,8,9,2]
+    [134217728,0,18014398509481984,0,0,134217728]
+    Just 0
+    Right 0
+    390625
+    
+ 2_2.txt   n = 5
+    5 0
+    3 2
+    5 1
+    3 4
+    9 0
+    9 1
+  
+    [5,3,5,3,9,9]
+    [3273344365508751233,0,3273344365508751233,0,0,0]
+    Nothing
+    Left "not found unique elements in a list"
+    1
+
+  
+  
+  
+  
 -}
