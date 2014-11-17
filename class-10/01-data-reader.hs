@@ -8,5 +8,29 @@
    (операции >>= и >>, функции ap, liftM и другие функции монадической обработки данных, использование
    блока do не допускается).
 -}
+import Control.Applicative
+import System.Environment
+import Control.Monad
+import Data.List
 
-main = undefined
+type Name = String
+type Age = Int
+type Group = Double
+data Student = Student Name Age Group deriving (Show,Ord,Eq)
+
+
+createStudentList :: [String] -> [Student]
+createStudentList [] = []
+createStudentList ls =  (let [sname , age, group ] = take 3 ls in (Student sname (read age) (read group)) )  : createStudentList (drop 3 ls )
+
+readInf :: FilePath -> IO [Student]
+readInf fname =  readFile fname >>= return . createStudentList . lines   
+
+
+unionLists::IO[Student] -> IO[Student] -> IO[Student] 				
+unionLists s1 s2 =   (++) `liftM` s1 `ap` s2 >>= (return . sort)                                   
+                 
+
+main =  getArgs >>= \[n,m] -> unionLists (readInf n) (readInf m)
+
+  
