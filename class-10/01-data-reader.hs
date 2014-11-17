@@ -27,7 +27,7 @@ readInf :: FilePath -> IO [Student]
 readInf fname =  readFile fname >>= return . createStudentList . lines   
 
 
-unionLists::IO[Student] -> IO[Student] -> IO[Student] 				
+unionLists::IO[Student] -> IO[Student] -> IO[Student]               
 unionLists s1 s2 =   (++) `liftM` s1 `ap` s2 >>= (return . sort)                                   
                  
 

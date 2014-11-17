@@ -39,7 +39,7 @@ accept (alph, st, ins, tf, accS) str =  or .f ins $ str
             where
                 f state "" = if (elem state accS) then return True else return False
                 f state str = (tf state $ head str) >>= \st ->  f st ( tail str) 
-				
+                
 -- Постройте ещё как минимум три примера НКА
 --  цепочки заканчиваются последовательностью 00
 nfa1 :: NFA
