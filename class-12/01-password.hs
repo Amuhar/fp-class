@@ -8,28 +8,46 @@
    - все попытки ввода пароля протоколируются средствами монады Writer.
 -}
 
+
 import Control.Monad
 import Control.Monad.Trans
 import Control.Monad.Trans.Maybe
-
 import Data.Char
+import Control.Monad.Reader
+import Control.Monad.Writer
+import System.Environment
+import Control.Monad
 
-isValid :: String -> Bool
-isValid s = length s >= 8 && 
-                any isAlpha s && 
-                any isNumber s && 
-                any isPunctuation s
 
-getValidPassword :: MaybeT IO String
-getValidPassword = do
-  lift $ putStrLn "Введите новый пароль:"
-  s <- lift getLine
-  guard (isValid s)
-  return s
- 
-askPassword :: MaybeT IO ()
-askPassword = do
-  value <- msum $ repeat getValidPassword
-  lift $ putStrLn "Сохранение в базе данных..."
 
-main = runMaybeT askPassword
+isValid :: String -> [String] -> Bool
+isValid s constr= let [minLength, alpha, number,punctuation] = constr in (length s >= read minLength &&
+    (not  (read alpha) || (any isAlpha s) )&&
+    (not (read number) || (any isNumber s) )&&
+    (not (read punctuation) || (any isPunctuation s) ) ) 
+    
+    
+
+    
+getValidPassword::[String] -> MaybeT (ReaderT [String] (WriterT [String] IO)) String 
+getValidPassword x= do 
+   liftIO $ putStrLn "Введите новый пароль:" 
+   s <- liftIO getLine 
+   tell $ [s]
+   guard (isValid s x) 
+   return s 
+
+
+
+askPassword :: MaybeT (ReaderT [String] (WriterT [String] IO)) ()
+askPassword  = do 
+   config <- lift ask
+   value <-  msum $ repeat (getValidPassword config)
+   liftIO $ putStrLn "Сохранение в базе данных..." 
+
+
+main = do
+      constr <- getArgs
+      (_,passwords) <- runWriterT  (runReaderT (runMaybeT askPassword) constr  )
+      print passwords
+
