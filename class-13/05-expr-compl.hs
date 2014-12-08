@@ -64,6 +64,6 @@ expr = token (term >>= rest addop term)
           (symbol s1 >> return cons1) <|>
           (symbol s2 >> return cons2)
     constant = Complex `liftM` complex <|> Conf `liftM` float -- <|> Con `liftM` natural  
-	
+    
 -- apply float "5" -> 5.0 
 
