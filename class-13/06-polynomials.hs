@@ -3,9 +3,10 @@
 import Parser
 import SimpleParsers
 import ParseNumbers
-import Control.Applicative
+import Control.Applicative hiding (many, optional)
 import Data.Char
 import Control.Monad
+import Data.List
 {-
    Определите тип для многочлена с вещественными коэффициентами.
 -}
@@ -28,31 +29,61 @@ float = fr <|> fn
   Реализуйте парсер для многочленов (примеры в файле poly.txt).
 -}
 -- для многочленов , записанных в форме cn*x^n + cn-1*x^(n-1)+..+c0 
-coefficient = do 
-        space
-        c <- getc
-        case c of 
-         t| t == 'x' -> token((char '^' >> natural >>= \n -> return (1.0,n)  ) <|> return (1.0,1))
-          | t == '-' -> token((char 'x' >> (char '^' >> natural >>= \n -> return (-1.0,n)  ) <|> return (-1.0,1)) <|>
-                        (float >>= \cf -> (char 'x' >> (char '^' >> natural >>= \n -> return (-cf, n) )<|> return (-cf,1))
-                        <|> return (-cf,0)))
-          | t == '+' -> token ((char 'x' >> (char '^' >> natural >>= \n -> return (1.0,n)  ) <|> return (1.0,1)) <|>
-                        (float >>= \cf -> (char 'x' >> (char '^' >> natural >>= \n -> return (cf, n) )<|> return (cf,1))
-                        <|> return (cf,0)))
-          | isDigit t -> token (char 'x' >> (char '^' >> natural >>= \n -> return (read (t:""), n) )<|> return (read (t:""),1)) 
+
                           
 
 
+readxInDeg = symbol "x" >> optional (1.0,1) (symbol "^" >> natural >>= \n -> return (1.0,n))
+
+
+summand = do
+          token( readxInDeg  <|>  (coefficient  >>= \cf -> (readxInDeg >>= \(c,d) -> return (cf*c,d))  <|> return (cf,0)))
+
+coefficient = float <|> (char '+' >> float) <|> (char '-' >> return (-1))       
+ 
 poly :: Parser Poly
-poly = Poly `liftM` many1 coefficient
-   
+poly = Poly `liftM` (many1 summand)
+  
+
       
 
 {-
    Напишите функцию, которая вычисляет частное и остаток при делении многочлена на многочлен.
 -}
+
+fromPoly :: Poly -> [(Float,Int)]
+fromPoly (Poly ls) = ls
+
+polyDeg :: CoefficientsDegree -> Int
+polyDeg ls = length ls -1
+
+ 
+
+{-
 divmod :: Poly -> Poly -> (Poly, Poly)
-divmod = undefined
+divmod p1 p2=  f (fromPoly p1) (fromPoly p2) []
+    where 
+        f l1 l2 q | degDiff l1 l2 <0 = (q,l1) --l1 - остаток , q - частное
+                  | otherwise = f  ? l2 
+            
+            where
+                    pr = ( oldK l1 l2,degDiff l1 l2)
+                    q' =  (reverse$ :q)
+                    oldK l1 l2 = (fst.head $ l1) - (fst.head $ l2)
+                    degDiff m1 m2 = (polyDeg m1) - (polyDeg m2)
+                    pl2q' = map (\(c,d) -> (c*(fst pr),d+(snd pr))  ) l2
+                    diff l1 pl2q' = zipWith' (-) l1 pl2q' 
+        
+zipWith' p1 p2 = f pn1 pn2 []
+    where 
+        diff = length p1 - length p2
+        pn1 = if diff >0 then pn1 else (p1++(replicate diff 0))
+        pn2 = if diff > 0 then p2 else (p2++(replicate diff 0))
+        f (x:xs) (y:ys) p = case x of
+                             x == y -> f xs ys p1
+                             snd x > snd y -> f xs ys (s)-}
+
+
 
 {-
    Напишите функцию, которая вычисляет наибольший общий делитель двух многочленов.
