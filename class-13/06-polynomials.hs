@@ -84,32 +84,6 @@ diffPoly p2 p1 = dropZeroEl $ if diff >0 then (modifPoly $ zip p2 (addZero p1 di
 
  
 
-
-{-divmod :: Poly -> Poly -> (Poly, Poly)
-divmod p1 p2=  f (fromPoly p1) (fromPoly p2) []
-    where 
-        f l1 l2 q | degDiff l1 l2 <0 = (q,l1) --l1 - остаток , q - частное
-                  | otherwise = f  ? l2 
-            
-            where
-                    pr = ( oldK l1 l2,degDiff l1 l2)
-                    q' =  (reverse$ :q)
-                    oldK l1 l2 = (fst.head $ l1) - (fst.head $ l2)
-                    degDiff m1 m2 = (polyDeg m1) - (polyDeg m2)
-                    pl2q' = map (\(c,d) -> (c*(fst pr),d+(snd pr))  ) l2
-                    diff l1 pl2q' = zipWith' (-) l1 pl2q' 
-        
-zipWith' p1 p2 = f pn1 pn2 []
-    where 
-        diff = length p1 - length p2
-        pn1 = if diff >0 then pn1 else (p1++(replicate diff 0))
-        pn2 = if diff > 0 then p2 else (p2++(replicate diff 0))
-        f (x:xs) (y:ys) p = case x of
-                             x == y -> f xs ys p1
-                             snd x > snd y -> f xs ys (s)-}
-
-
-
 {-
    Напишите функцию, которая вычисляет наибольший общий делитель двух многочленов.
 -}
