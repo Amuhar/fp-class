@@ -57,10 +57,35 @@ fromPoly (Poly ls) = ls
 polyDeg :: CoefficientsDegree -> Int
 polyDeg ls = length ls -1
 
+divmod :: Poly -> Poly -> (Poly, Poly)
+divmod p1 p2 = (\(x,y)-> (Poly x, Poly y) ) $ f (fromPoly p1) (fromPoly p2) []
+    where 
+         f r p q | oldDeg  <0 = (reverse q, r)
+                  | otherwise = f diff p ((oldCoef, oldDeg):q) 
+             where 
+                oldCoef = (fst.head $ r) / (fst. head $ p )
+                oldDeg = (snd.head $ r) - (snd.head $ p)
+                mp2 = map (\(c,d) -> (c*oldCoef, oldDeg + d)) p
+                diff = diffPoly r mp2
+
+modifPoly p  =reverse $ foldl (\acc (x,y) -> case (x,y) of 
+                                             (x1,y1)| snd x1 == snd y1  -> ((fst x1 - fst y1, snd x1):acc)
+                                                    | snd x1 > snd y1 -> (-(fst y1),snd y1):x1:acc
+                                                    |otherwise -> x1:(-(fst y1),snd y1):acc    ) [] p
  
 
-{-
-divmod :: Poly -> Poly -> (Poly, Poly)
+dropZeroEl p = filter ((/= 0 ).fst) p
+ 
+addZero p d = p ++  replicate d (0,0)   
+            
+diffPoly p2 p1 = dropZeroEl $ if diff >0 then (modifPoly $ zip p2 (addZero p1 diff)) else (modifPoly $ zip (addZero p2 (-diff)) p1)
+  where          
+       diff =  length p2 - length p1
+
+ 
+
+
+{-divmod :: Poly -> Poly -> (Poly, Poly)
 divmod p1 p2=  f (fromPoly p1) (fromPoly p2) []
     where 
         f l1 l2 q | degDiff l1 l2 <0 = (q,l1) --l1 - остаток , q - частное
